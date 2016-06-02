@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+  <head>
+    <title>GitHub Pull Requests Listener</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css.map">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="font-awesome-4.6.3/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/popup.css">
+  </head>
+  <body class="container">
+    <h2>GitHub Pull Requests Listener <button id="settingsBtn" class="btn btn-sm btn-default"><i class="fa fa-cog"></i></button></h2>
+    <div id="settings" hidden>
+      <div class="form-group">
+      	<label for="ghToken">Oauth Token</label>
+        <input type="password" class="form-control" id="ghToken">
+      </div>
+    	<button id="applySettingsBtn" class="btn btn-primary">Save Token</button>
+    </div>
+    <div id="pullRequests">
+      <button id="refreshPRlist" class="btn btn-sm btn-default floatRight"><i class="fa fa-refresh"></i></button>
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#assignedPullRequests" role="tab" data-toggle="tab" id="showAssigned">Assigned</a></li>
+        <li role="presentation"><a href="#createdPullRequests" role="tab" data-toggle="tab" id="showCreated">Created</a></li>
+      </ul>
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="assignedPullRequests"></div>
+        <div role="tabpanel" class="tab-pane" id="createdPullRequests"></div>
+      </div>
+    </div>
+  </body>
+  <footer>
+    <script src="js/jquery-2.2.4.min.js"></script>
+    <script src="js/jquery-cookie.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+    <script src="js/popup.js"></script>
+  </footer>
+</html>

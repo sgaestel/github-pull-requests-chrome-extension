@@ -1,0 +1,13 @@
+html, body {
+	min-width: 800px;
+	min-height: 200px;
+}
+
+.assignee-img {
+	width: 25px;
+	height: 25px;
+}
+
+.floatRight {
+	float: right;
+}
