@@ -82,6 +82,6 @@ $(function() {
         retrieveAssignedPRs();
         retrieveCreatedPRs();
 
-        setTimeout(background, 120000);
+        setTimeout(background, Cookies.get("ghPollingInterval") ? Cookies.get("ghPollingInterval") * 60000 : 120000);
     })();
 });
