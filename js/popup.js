@@ -10,10 +10,12 @@ $(function() {
     });
 
     chrome.runtime.onMessage.addListener(function(prs) {
-        createIssuesTableView(prs.type + "PullRequests", prs.prs);
+        createIssuesTableView(prs.type, prs.prs);
     });
 
-    var createIssuesTableView = function(containerName, issues) {
+    var createIssuesTableView = function(type, issues) {
+        var containerName = type + "PullRequests";
+        $("#" + type + "PRsCount").text(issues.length || "");
         // Create view for each PR
         var createIssueView = function(issue) {
             var $pullRequestLink = $("<a>", {
@@ -89,6 +91,6 @@ $(function() {
         bgScript.retrieveCreatedPRs();
     });
 
-    createIssuesTableView("assignedPullRequests", bgScript.getAssignedPRs());
-    createIssuesTableView("createdPullRequests", bgScript.getCreatedPRs());
+    createIssuesTableView("assigned", bgScript.getAssignedPRs());
+    createIssuesTableView("created", bgScript.getCreatedPRs());
 });

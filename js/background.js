@@ -47,7 +47,7 @@ var retrievePRs = function(type) {
 var retrieveAssignedPRs = function() {
     $.when(retrievePRs("assigned")).done(function(assignedIssues) {
         chrome.browserAction.setBadgeText({
-            text: (assignedIssues.length).toString()
+            text: assignedIssues.length ? (assignedIssues.length).toString() : ""
         });
         chrome.browserAction.setBadgeBackgroundColor({
             color: [27, 86, 224, 255]
