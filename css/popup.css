@@ -1,6 +1,7 @@
 html, body {
 	min-width: 800px;
 	min-height: 200px;
+	padding-bottom: 10px;
 }
 
 .assignee-img {

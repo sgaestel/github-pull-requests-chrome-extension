@@ -11,10 +11,14 @@
     <h2>GitHub Pull Requests Listener <button id="settingsBtn" class="btn btn-sm btn-default"><i class="fa fa-cog"></i></button></h2>
     <div id="settings" hidden>
       <div class="form-group">
-      	<label for="ghToken">Oauth Token</label>
+        <label for="ghToken">Oauth Token</label>
         <input type="password" class="form-control" id="ghToken">
       </div>
-    	<button id="applySettingsBtn" class="btn btn-primary">Save Token</button>
+      <div class="form-group">
+        <label for="ghPollingInterval">Polling Interval</label>
+        <input type="number" min="1" step="1" class="form-control" id="ghPollingInterval">
+      </div>
+      <button id="applySettingsBtn" class="btn btn-primary">Save</button> <button id="cancelSettingsBtn" class="btn btn-danger">Cancel</button>
     </div>
     <div id="pullRequests">
       <button id="refreshPRlist" class="btn btn-sm btn-default floatRight"><i class="fa fa-refresh"></i></button>
@@ -31,7 +35,7 @@
   <footer>
     <script src="js/jquery-2.2.4.min.js"></script>
     <script src="js/jquery-cookie.js"></script>
-		<script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="js/popup.js"></script>
   </footer>
 </html>

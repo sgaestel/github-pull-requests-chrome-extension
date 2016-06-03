@@ -74,12 +74,18 @@ $(function() {
         $("#settings").toggle();
     };
 
-    $("#settingsBtn").on("click", function() {
+    $("#settingsBtn, #cancelSettingsBtn").on("click", function() {
         toggleSettings();
     });
 
     $("#applySettingsBtn").on("click", function() {
-        Cookies.set("ghToken", $("#ghToken").val());
+        if ($("#ghToken").val() !== "") {
+            Cookies.set("ghToken", $("#ghToken").val());
+        }
+        if ($("#ghPollingInterval").val() !== "") {
+            Cookies.set("ghPollingInterval", parseInt($("#ghPollingInterval").val()));
+        }
+
         bgScript.retrieveAssignedPRs();
         bgScript.retrieveCreatedPRs();
         toggleSettings();
@@ -90,6 +96,10 @@ $(function() {
         bgScript.retrieveAssignedPRs();
         bgScript.retrieveCreatedPRs();
     });
+
+    // Init settings values
+    $("#ghToken").val(Cookies.get("ghToken") || "");
+    $("#ghPollingInterval").val(Cookies.get("ghPollingInterval") || 2);
 
     createIssuesTableView("assigned", bgScript.getAssignedPRs());
     createIssuesTableView("created", bgScript.getCreatedPRs());
