@@ -1,14 +1,40 @@
 html, body {
-	min-width: 800px;
-	min-height: 200px;
-	padding-bottom: 10px;
+  width: 800px;
+}
+
+body {
+  padding-bottom: 20px;
 }
 
 .assignee-img {
-	width: 25px;
-	height: 25px;
+  width: 25px;
+  height: 25px;
 }
 
 .floatRight {
-	float: right;
+  float: right;
+}
+
+.tab-content {
+  margin-top: 10px;
+}
+
+.table {
+  margin-bottom: 0px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+th {
+  padding-left: 10px;
+}
+
+.fa-check-square {
+  color: green;
+}
+
+.fa-circle {
+  color: red;
 }

@@ -10,6 +10,59 @@ var filterPullRequests = function(issues) {
     });
 };
 
+var retrievePRDetails = function(repo, number) {
+    var lastComment = null;
+
+    var findPRDetails = function() {
+        return $.get({
+            url: GITHUB_API_URL + "/" + ["repos", repo, "pulls", number].join("/"),
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+            },
+            data: {
+                access_token: Cookies.get("ghToken")
+            }
+        });
+    };
+
+    var findLastPRComment = function(page) {
+        if (!page) {
+            findLastPRComment.deferred = new jQuery.Deferred();
+        }
+        page = page || 1;
+        $.get({
+                url: GITHUB_API_URL + "/" + ["repos", repo, "issues", number, "comments"].join("/"),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+                },
+                data: {
+                    access_token: Cookies.get("ghToken"),
+                    page: page
+                }
+            })
+            .done(function(data) {
+                if (data.length) {
+                    lastComment = data[data.length - 1];
+                }
+                if (data.length === 30) {
+                    findLastPRComment(page + 1);
+                } else {
+                    findLastPRComment.deferred.resolve();
+                }
+            });
+
+        return findLastPRComment.deferred.promise();
+    };
+
+    $.when(findPRDetails(), findLastPRComment()).done(function(prDetails) {
+        chrome.runtime.sendMessage({
+            type: "prDetails",
+            pr: prDetails[0],
+            lastComment: lastComment
+        });
+    });
+};
+
 var retrievePRs = function(type) {
     var issues = [];
 
@@ -18,10 +71,16 @@ var retrievePRs = function(type) {
             findPRs.deferred = new jQuery.Deferred();
         }
         page = page || 1;
-        $.get(GITHUB_API_URL + "/issues", {
-                access_token: Cookies.get("ghToken"),
-                page: page,
-                filter: type === "created" ? "created" : undefined
+        $.get({
+                url: GITHUB_API_URL + "/issues",
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+                },
+                data: {
+                    access_token: Cookies.get("ghToken"),
+                    page: page,
+                    filter: type === "created" ? "created" : undefined
+                }
             })
             .done(function(data) {
                 issues = issues.concat(data);
