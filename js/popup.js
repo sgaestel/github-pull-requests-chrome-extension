@@ -47,12 +47,18 @@ $(function() {
         $("#pullRequestDetails").empty();
         $("#pullRequestDetails").append(
             $("<h4>").append(
-                $("<a>", {
-                    class: "clickable",
+                $("<button>", {
+                    class: "btn btn-sm btn-default",
                     id: "backToList"
-                }).text("< "),
+                }).append(
+                    $("<i>", {
+                        class: "fa fa-arrow-left"
+                    }),
+                    $("<span>").text(" Back")
+                ),
                 $("<a>", {
                     class: "link",
+                    style: "padding-left: 5px;",
                     href: prDetails.html_url
                 }).text("#" + prDetails.number + " - " + prDetails.title)
             ),

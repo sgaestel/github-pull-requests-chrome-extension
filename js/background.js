@@ -94,14 +94,72 @@ var retrievePRs = function(type) {
     };
 
     return $.when(findPRs()).then(function() {
+        var PRs = filterPullRequests(issues);
         if (type === "created") {
-            createdPRs = filterPullRequests(issues);
+            $.each(PRs, function(index, pullRequest) {
+                var prExists = assignedPRs.find(function(pr) {
+                    return pr.number === pullRequest.number;
+                });
+                if (prExists && pullRequest.comments > prExists.comments) {
+                    chrome.notifications.create("newComment-" + pullRequest.number, {
+                        type: "basic",
+                        iconUrl: "../icon.png",
+                        title: "New comment in Pull Request",
+                        message: "#" + pullRequest.number + " - " + pullRequest.title,
+                        contextMessage: "Repository: " + pullRequest.repository.full_name,
+                        buttons: [{
+                            title: "Go to Pull Request"
+                        }]
+                    });
+                }
+            });
+            createdPRs = PRs;
         } else {
-            assignedPRs = filterPullRequests(issues);
+            $.each(PRs, function(index, pullRequest) {
+                var prExists = assignedPRs.find(function(pr) {
+                    return pr.number === pullRequest.number;
+                });
+                if (!prExists) {
+                    chrome.notifications.create("newPR-" + pullRequest.number, {
+                        type: "basic",
+                        iconUrl: "../icon.png",
+                        title: "A new Pull Request has been assigned to you.",
+                        message: "#" + pullRequest.number + " - " + pullRequest.title,
+                        contextMessage: "Repository: " + pullRequest.repository.full_name,
+                        buttons: [{
+                            title: "Go to Pull Request"
+                        }]
+                    });
+                } else {
+                    if (pullRequest.comments > prExists.comments) {
+                        chrome.notifications.create("newComment-" + pullRequest.number, {
+                            type: "basic",
+                            iconUrl: "../icon.png",
+                            title: "New comment in Pull Request",
+                            message: "#" + pullRequest.number + " - " + pullRequest.title,
+                            contextMessage: "Repository: " + pullRequest.repository.full_name,
+                            buttons: [{
+                                title: "Go to Pull Request"
+                            }]
+                        });
+                    }
+                }
+            });
+            assignedPRs = PRs;
         }
-        return $.Deferred().resolve(filterPullRequests(issues));
+        return $.Deferred().resolve(PRs);
     });
 };
+
+chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+    var prNumber = notificationId.split("-")[1];
+
+    chrome.tabs.create({
+        url: assignedPRs.concat(createdPRs).find(function(pr) {
+            return pr.number.toString() === prNumber;
+        }).html_url
+    });
+});
 
 var retrieveAssignedPRs = function() {
     $.when(retrievePRs("assigned")).done(function(assignedIssues) {
