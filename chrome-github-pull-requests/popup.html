@@ -13,11 +13,19 @@
     <div id="settings" hidden>
       <div class="form-group">
         <label for="ghToken">Oauth Token</label>
-        <input type="password" class="form-control" id="ghToken">
+        <input type="password" class="form-control" id="ghToken"/>
+      </div>
+      <div class="form-group">
+        <label for="ghUser">Usename</label>
+        <input type="text" class="form-control" id="ghUser"/>
+      </div>
+      <div class="form-group">
+        <label for="ghOrganization">Organization</label>
+        <input type="text" class="form-control" id="ghOrganization"/>
       </div>
       <div class="form-group">
         <label for="ghPollingInterval">Polling Interval</label>
-        <input type="number" min="1" step="1" class="form-control" id="ghPollingInterval">
+        <input type="number" min="1" step="1" class="form-control" id="ghPollingInterval"/>
       </div>
       <button id="applySettingsBtn" class="btn btn-primary">Save</button> <button id="cancelSettingsBtn" class="btn btn-danger">Cancel</button>
     </div>
@@ -27,10 +35,12 @@
       <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#assignedPullRequests" role="tab" data-toggle="tab" id="showAssigned">Assigned <span id="assignedPRsCount" class="badge"></span></a></li>
         <li role="presentation"><a href="#createdPullRequests" role="tab" data-toggle="tab" id="showCreated">Created  <span id="createdPRsCount" class="badge"></span></a></li>
+        <li role="presentation"><a href="#reviewPullRequests" role="tab" data-toggle="tab" id="showReview">Review required <span id="reviewPRsCount" class="badge"></span></a></li>
       </ul>
       <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="assignedPullRequests"></div>
         <div role="tabpanel" class="tab-pane" id="createdPullRequests"></div>
+        <div role="tabpanel" class="tab-pane" id="reviewPullRequests"></div>
       </div>
     </div>
 

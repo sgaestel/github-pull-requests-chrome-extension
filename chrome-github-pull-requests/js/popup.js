@@ -110,15 +110,18 @@ $(function() {
         $("#" + type + "PRsCount").text(issues.length || "");
         // Create view for each PR
         var createIssueView = function(issue) {
+            var repoName = issue.repository_url.replace("https://api.github.com/repos/", "");
             var $pullRequestLink = $("<a>", {
                 class: "link",
                 href: issue.html_url
             }).text("#" + issue.number + " - " + issue.title);
 
+            var splittedUrl = issue.repository_url.split("/");
+
             var $projectView = $("<a>", {
                 class: "link",
-                href: issue.repository.owner.html_url + "/" + issue.repository.name
-            }).text(issue.repository.full_name);
+                href: issue.html_url.split("/pull")[0]
+            }).text(repoName);
 
             var $assigneeView = function() {
                 if (issue.assignee) {
@@ -132,7 +135,7 @@ $(function() {
             }();
 
             var $detailsView = $("<a>", {
-                "data-repository": issue.repository.full_name,
+                "data-repository": repoName,
                 "data-number": issue.number,
                 "class": "clickable prDetailsLink"
             }).text(">");
@@ -205,8 +208,19 @@ $(function() {
             });
         }
 
+        if ($("#ghUser").val() !== "") {
+            Cookies.set("ghUser", $("#ghUser").val(), {
+                expires: 365 * 10
+            });
+        }
+
+        Cookies.set("ghOrganization", $("#ghOrganization").val(), {
+            expires: 365 * 10
+        });
+
         bgScript.retrieveAssignedPRs();
         bgScript.retrieveCreatedPRs();
+        bgScript.retrieveReviewPRs();
         toggleSettings();
     });
 
@@ -214,6 +228,7 @@ $(function() {
     $("#refreshPRlist").on("click", function() {
         bgScript.retrieveAssignedPRs();
         bgScript.retrieveCreatedPRs();
+        bgScript.retrieveReviewPRs();
     });
 
     $("body").on("click", "#backToList", function() {
@@ -224,7 +239,10 @@ $(function() {
     // Init settings values
     $("#ghToken").val(Cookies.get("ghToken") || "");
     $("#ghPollingInterval").val(Cookies.get("ghPollingInterval") || 2);
+    $("#ghUser").val(Cookies.get("ghUser") || "");
+    $("#ghOrganization").val(Cookies.get("ghOrganization") || "");
 
     createIssuesTableView("assigned", bgScript.getAssignedPRs());
     createIssuesTableView("created", bgScript.getCreatedPRs());
+    createIssuesTableView("review", bgScript.getReviewPRs());
 });

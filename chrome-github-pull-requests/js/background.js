@@ -2,13 +2,7 @@ var GITHUB_API_URL = "https://api.github.com";
 
 var assignedPRs = [];
 var createdPRs = [];
-
-// Filter issues to keep only pull requests
-var filterPullRequests = function(issues) {
-    return issues.filter(function(issue) {
-        return issue.pull_request;
-    });
-};
+var reviewPRs = [];
 
 var retrievePRDetails = function(repo, number) {
     var lastComment = null;
@@ -64,7 +58,20 @@ var retrievePRDetails = function(repo, number) {
 };
 
 var retrievePRs = function(type) {
-    var issues = [];
+    var PRs = [];
+
+    var filter = "&q=type:pr+state:open";
+    if (Cookies.get("ghOrganization")) {
+        filter = filter + "+user:" + Cookies.get("ghOrganization");
+    }
+
+    if (type === "created") {
+        filter = filter + "+author:" + Cookies.get("ghUser");
+    } else if (type === "assigned") {
+        filter = filter + "+assignee:" + Cookies.get("ghUser");
+    } else {
+        filter = filter + "+review-requested:" + Cookies.get("ghUser");
+    }
 
     var findPRs = function(page) {
         if (!page) {
@@ -72,19 +79,18 @@ var retrievePRs = function(type) {
         }
         page = page || 1;
         $.get({
-                url: GITHUB_API_URL + "/issues",
+                url: GITHUB_API_URL + "/search/issues",
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
                 },
-                data: {
+                data: $.param({
                     access_token: Cookies.get("ghToken"),
-                    page: page,
-                    filter: type === "created" ? "created" : undefined
-                }
+                    page: page
+                }) + filter
             })
             .done(function(data) {
-                issues = issues.concat(data);
-                if (data.length === 30) {
+                PRs = PRs.concat(data.items);
+                if (data.length === 100) {
                     findPRs(page + 1);
                 } else {
                     findPRs.deferred.resolve();
@@ -94,7 +100,6 @@ var retrievePRs = function(type) {
     };
 
     return $.when(findPRs()).then(function() {
-        var PRs = filterPullRequests(issues);
         if (type === "created") {
             $.each(PRs, function(index, pullRequest) {
                 var prExists = assignedPRs.find(function(pr) {
@@ -106,7 +111,7 @@ var retrievePRs = function(type) {
                         iconUrl: "../icon.png",
                         title: "New comment in Pull Request",
                         message: "#" + pullRequest.number + " - " + pullRequest.title,
-                        contextMessage: "Repository: " + pullRequest.repository.full_name,
+                        contextMessage: "Repository: " + pullRequest.repository_url.replace("https://api.github.com/repos/", ""),
                         buttons: [{
                             title: "Go to Pull Request"
                         }]
@@ -114,7 +119,7 @@ var retrievePRs = function(type) {
                 }
             });
             createdPRs = PRs;
-        } else {
+        } else if (type === "assigned") {
             $.each(PRs, function(index, pullRequest) {
                 var prExists = assignedPRs.find(function(pr) {
                     return pr.number === pullRequest.number;
@@ -125,7 +130,7 @@ var retrievePRs = function(type) {
                         iconUrl: "../icon.png",
                         title: "A new Pull Request has been assigned to you.",
                         message: "#" + pullRequest.number + " - " + pullRequest.title,
-                        contextMessage: "Repository: " + pullRequest.repository.full_name,
+                        contextMessage: "Repository: " + pullRequest.repository_url.replace("https://api.github.com/repos/", ""),
                         buttons: [{
                             title: "Go to Pull Request"
                         }]
@@ -137,7 +142,7 @@ var retrievePRs = function(type) {
                             iconUrl: "../icon.png",
                             title: "New comment in Pull Request",
                             message: "#" + pullRequest.number + " - " + pullRequest.title,
-                            contextMessage: "Repository: " + pullRequest.repository.full_name,
+                            contextMessage: "Repository: " + pullRequest.repository_url.replace("https://api.github.com/repos/", ""),
                             buttons: [{
                                 title: "Go to Pull Request"
                             }]
@@ -146,6 +151,25 @@ var retrievePRs = function(type) {
                 }
             });
             assignedPRs = PRs;
+        } else {
+            $.each(PRs, function(index, pullRequest) {
+                var prExists = reviewPRs.find(function(pr) {
+                    return pr.number === pullRequest.number;
+                });
+                if (!prExists) {
+                    chrome.notifications.create("newPRreview-" + pullRequest.number, {
+                        type: "basic",
+                        iconUrl: "../icon.png",
+                        title: "You have been added as a reviewer for a pull request.",
+                        message: "#" + pullRequest.number + " - " + pullRequest.title,
+                        contextMessage: "Repository: " + pullRequest.repository_url.replace("https://api.github.com/repos/", ""),
+                        buttons: [{
+                            title: "Go to Pull Request"
+                        }]
+                    });
+                }
+            });
+            reviewPRs = PRs;
         }
         return $.Deferred().resolve(PRs);
     });
@@ -186,6 +210,15 @@ var retrieveCreatedPRs = function() {
     });
 };
 
+var retrieveReviewPRs = function() {
+    $.when(retrievePRs("review")).done(function(reviewIssues) {
+        chrome.runtime.sendMessage({
+            type: "review",
+            prs: reviewIssues
+        });
+    });
+}
+
 var getAssignedPRs = function() {
     return assignedPRs;
 };
@@ -194,10 +227,15 @@ var getCreatedPRs = function() {
     return createdPRs;
 };
 
+var getReviewPRs = function() {
+    return reviewPRs;
+};
+
 $(function() {
     (function background() {
         retrieveAssignedPRs();
         retrieveCreatedPRs();
+        retrieveReviewPRs();
 
         setTimeout(background, Cookies.get("ghPollingInterval") ? Cookies.get("ghPollingInterval") * 60000 : 120000);
     })();
