@@ -4,7 +4,7 @@ A chrome extension to listen github pull requests and list opened / assigned pul
 ## Install
 * Download the last release: [chrome-github-pull-requests.crx](https://github.com/sgaestel/github-pull-requests-chrome-extension/blob/master/chrome-github-pull-requests.crx?raw=true)
 * Drag and drop the file to your Chrome browser
-* If it doesn't work, trying enabling the developer mode in [chrome://extension](chrome://extension)
+* If it doesn't work, trying enabling the developer mode in [chrome://extensions](chrome://extensions)
 
 ## Configure
 * Go to your GitHub settings
