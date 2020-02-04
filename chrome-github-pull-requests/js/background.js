@@ -12,9 +12,7 @@ var retrievePRDetails = function(repo, number) {
       url: GITHUB_API_URL + '/' + ['repos', repo, 'pulls', number].join('/'),
       beforeSend: function(xhr) {
         xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
-      },
-      data: {
-        access_token: Cookies.get('ghToken')
+        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(Cookies.get('ghUser') + ':' + Cookies.get('ghToken')));
       }
     });
   };
@@ -28,9 +26,9 @@ var retrievePRDetails = function(repo, number) {
       url: GITHUB_API_URL + '/' + ['repos', repo, 'issues', number, 'comments'].join('/'),
       beforeSend: function(xhr) {
         xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(Cookies.get('ghUser') + ':' + Cookies.get('ghToken')));
       },
       data: {
-        access_token: Cookies.get('ghToken'),
         page: page
       }
     }).done(function(data) {
@@ -81,10 +79,10 @@ var retrievePRs = function(type) {
       url: GITHUB_API_URL + '/search/issues',
       beforeSend: function(xhr) {
         xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
+        xhr.setRequestHeader('Authorization', 'Basic ' + btoa(Cookies.get('ghUser') + ':' + Cookies.get('ghToken')));
       },
       data:
         $.param({
-          access_token: Cookies.get('ghToken'),
           page: page
         }) + filter
     }).done(function(data) {
